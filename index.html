@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Free Games Hub</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #222; color: #eee; margin:0; padding:0;}
+  #login, #register, #lobby, #adminPanel { display: none; padding: 20px; }
+  button { padding: 10px 20px; margin:5px; cursor:pointer; }
+  #chatBox { border:1px solid #555; height:150px; overflow-y:auto; margin-bottom:10px; padding:5px; background:#111; }
+  #adminPanel { position: fixed; top:10px; right:10px; background:#333; padding:20px; border:2px solid #f00; }
+</style>
+</head>
+<body>
+
+<div id="login">
+  <h2>Login</h2>
+  Username: <input id="loginUser"><br>
+  Password: <input type="password" id="loginPass"><br>
+  <button onclick="login()">Login</button>
+  <button onclick="showRegister()">Register</button>
+  <p id="loginMsg"></p>
+</div>
+
+<div id="register">
+  <h2>Register</h2>
+  Username: <input id="regUser"><br>
+  Password: <input type="password" id="regPass"><br>
+  <button onclick="register()">Register</button>
+  <button onclick="showLogin()">Back</button>
+  <p id="regMsg"></p>
+</div>
+
+<div id="lobby">
+  <h2>Welcome, <span id="userName"></span></h2>
+  <button onclick="playGame('Minecraft Clone')">Play Free Minecraft</button>
+  <button onclick="playGame('Other Game')">Play Other Game</button>
+  <button onclick="toggleChat()">Chat</button>
+  <button onclick="promptAdmin()">Admin Panel</button>
+
+  <div id="chat" style="display:none;">
+    <div id="chatBox"></div>
+    <input id="chatInput" placeholder="Type message">
+    <button onclick="sendMessage()">Send</button>
+  </div>
+</div>
+
+<div id="adminPanel">
+  <h3>Admin Panel</h3>
+  <button onclick="rickRollAll()">Rickroll All</button>
+  <button onclick="rickRollUser()">Rickroll User</button>
+  <button onclick="globalNotice()">Global Notice</button>
+  <button onclick="banUser()">Ban User</button>
+  <button onclick="kickUser()">Kick User</button>
+  <button onclick="closeAdmin()">Close Admin Panel</button>
+</div>
+
+<script>
+  // --- LocalStorage Users ---
+  let users = JSON.parse(localStorage.getItem('users') || '{}');
+  let currentUser = '';
+
+  // Show login on start
+  document.getElementById('login').style.display = 'block';
+
+  function showRegister(){ document.getElementById('login').style.display='none'; document.getElementById('register').style.display='block'; }
+  function showLogin(){ document.getElementById('register').style.display='none'; document.getElementById('login').style.display='block'; }
+
+  function register(){
+    let user = document.getElementById('regUser').value;
+    let pass = document.getElementById('regPass').value;
+    if(!user || !pass){ document.getElementById('regMsg').innerText="Enter username & password"; return; }
+    if(users[user]){ document.getElementById('regMsg').innerText="Username taken"; return; }
+    users[user] = {password: pass};
+    localStorage.setItem('users', JSON.stringify(users));
+    document.getElementById('regMsg').innerText="Registered! Please login.";
+  }
+
+  function login(){
+    let user = document.getElementById('loginUser').value;
+    let pass = document.getElementById('loginPass').value;
+    if(users[user] && users[user].password === pass){
+      currentUser = user;
+      document.getElementById('login').style.display='none';
+      document.getElementById('lobby').style.display='block';
+      document.getElementById('userName').innerText = currentUser;
+    }else{
+      document.getElementById('loginMsg').innerText="Invalid credentials";
+    }
+  }
+
+  // --- Lobby Chat ---
+  function toggleChat(){ 
+    let chat = document.getElementById('chat'); 
+    chat.style.display = chat.style.display==='none'?'block':'none'; 
+  }
+  function sendMessage(){
+    let msg = document.getElementById('chatInput').value;
+    if(msg.trim()==='') return;
+    let chatBox = document.getElementById('chatBox');
+    chatBox.innerHTML += `<b>${currentUser}:</b> ${msg}<br>`;
+    document.getElementById('chatInput').value='';
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  // --- Admin Panel ---
+  function promptAdmin(){
+    let pass = prompt("Enter admin password:");
+    if(pass==='sadieandfinn'){
+      document.getElementById('adminPanel').style.display='block';
+    }else{
+      alert("Wrong password!");
+    }
+  }
+  function closeAdmin(){ document.getElementById('adminPanel').style.display='none'; }
+  
+  function rickRollAll(){ alert("Rickrolling all users 🎵"); }
+  function rickRollUser(){ let u = prompt("Enter username to Rickroll:"); alert(`Rickrolling ${u} 🎵`); }
+  function globalNotice(){ let n = prompt("Enter notice:"); alert(`Global Notice: ${n}`); }
+  function banUser(){ let u = prompt("Enter username to ban:"); alert(`${u} banned! 🚫`); }
+  function kickUser(){ let u = prompt("Enter username to kick:"); alert(`${u} kicked! 👢`); }
+
+  // --- Games ---
+  function playGame(name){ alert(`Launching ${name}... 🎮`); }
+
+</script>
+</body>
+</html>
